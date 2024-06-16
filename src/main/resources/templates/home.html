@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/script.js"></script>
+    
+    <body>
+        <form id="kafkaForm">
+            <label for="message">Message:</label>
+            <input type="text" id="message" name="message">
+            <button type="submit">Send</button>
+        </form>
+      
+            
+        <a href="/api/ho">test page</a>
+        <video id="videoElement" width="640" height="480" autoplay></video>
+        <button id="captureButton">Capture Image</button>
+    
+        <script>
+            document.getElementById('kafkaForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const message = document.getElementById('message').value;
+                fetch('/send', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.text())
+                .then(data => alert(data))
+                .catch(error => console.error('Error:', error));
+            });
+            
+            const video = document.getElementById('videoElement');
+    
+            // Access the camera and stream the video
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error('Error accessing the camera:', err);
+                });
+    
+            const captureButton = document.getElementById('captureButton');
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+    
+            // Capture image when the button is clicked
+            captureButton.addEventListener('click', () => {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg'); // Get image data as base64 string
+                console.log(imageData); // Log or send imageData via Kafka
+            });
+        </script>
+    </body>
+    </html>
+    
+</html>
